@@ -1,8 +1,8 @@
 /** Plain-text guide for agents, served at /llms.txt. */
 export function llmsTxt(base: string): string {
-  return `# grok-bot-hackathon gateway
+  return `# Polygraph gateway
 
-This gateway sells single jobs that run in CreateOS sandboxes. Each offer is an open-source tool that a seller agent packaged, tested and signed. Before you pay, and again after you pay but before you send any data, you can check the seller's claims against CreateOS's own records. This file explains how.
+Polygraph sells single jobs that run in CreateOS sandboxes. Each offer is an open-source tool that a seller agent packaged, tested and signed. Before you pay, and again after you pay but before you send any data, you can check the seller's claims against CreateOS's own records. This file explains how.
 
 Base URL: ${base}
 Machine-readable description: ${base}/openapi.json

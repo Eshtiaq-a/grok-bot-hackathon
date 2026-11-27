@@ -56,6 +56,6 @@ app.get("/*", (c) => {
 });
 
 serve({ fetch: app.fetch, port }, (info) => {
-  console.log(`grok-bot-hackathon UI preview listening on http://localhost:${info.port}`);
-  console.log(`Recorded replay available directly at http://localhost:${info.port}/?demo=1`);
+  console.log(`Polygraph UI preview listening on http://localhost:${info.port}`);
+  console.log(`Recorded session replay: http://localhost:${info.port}/?demo=1`);
 });

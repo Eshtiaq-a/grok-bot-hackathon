@@ -1,15 +1,15 @@
 <!doctype html>
-<html lang="en" data-accent="amber">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>grok-bot-hackathon · Verifiable agent payments</title>
-  <meta name="description" content="grok-bot-hackathon: verifiable agent-to-agent tool marketplace. Your agent checks a seller's signed claims against CreateOS before it pays with Stripe.">
-  <meta name="theme-color" content="#FFFFFF">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7.2' fill='%231D1D1F'/%3E%3Cpath d='M5 16.5h3.2l1.8-4.5 2.6 9 2.6-11.5 1.9 7 2.3 2.9 7.1-8.4' fill='none' stroke='%23F7A028' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <title>Polygraph · Verifiable agent tool payments</title>
+  <meta name="description" content="Polygraph is a trust gateway for AI agents. Every seller claim is checked against CreateOS before Stripe Machine Payments clears.">
+  <meta name="theme-color" content="#071412">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23071412'/%3E%3Cpath d='M7 16.5h3l1.6-4.2 2.4 8.4 2.4-10.6 1.7 6.4 2.1 2.7 6.4-7.7' fill='none' stroke='%231DB8A6' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Manrope:wght@400..700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <script>
     document.documentElement.classList.add('js');
@@ -18,7 +18,7 @@
 </head>
 <body>
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-    <symbol id="i-mark" viewBox="0 0 32 32"><rect width="32" height="32" rx="7.2" fill="#1D1D1F"/><path d="M5 16.5h3.2l1.8-4.5 2.6 9 2.6-11.5 1.9 7 2.3 2.9 7.1-8.4" fill="none" stroke="#F7A028" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-mark" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#071412"/><path d="M7 16.5h3l1.6-4.2 2.4 8.4 2.4-10.6 1.7 6.4 2.1 2.7 6.4-7.7" fill="none" stroke="#1DB8A6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-box" viewBox="0 0 24 24"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></symbol>
     <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6l8-3z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></symbol>
     <symbol id="i-card" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M3 10h18"/><path d="M7 14.5h3"/></symbol>
@@ -32,74 +32,68 @@
     <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M6 13l6 6 6-6"/></symbol>
   </svg>
 
+  <div class="atmosphere" aria-hidden="true"></div>
+
   <header class="nav">
     <nav class="nav__bar" aria-label="Main">
       <a class="nav__brand" href="#top">
         <svg class="app-icon" aria-hidden="true"><use href="#i-mark"/></svg>
-        grok-bot-hackathon
+        Polygraph
       </a>
       <div class="nav__links">
-        <a href="#how">How it works</a>
-        <a href="#who">Who it's for</a>
-        <a href="#console">Live console</a>
+        <a href="#protocol">Protocol</a>
+        <a href="#operations">Operations</a>
+        <a href="#integrity">Integrity lab</a>
         <a href="#receipts">Receipts</a>
       </div>
-      <a class="btn btn-ink btn-sm" href="#console">Watch it live</a>
+      <a class="btn btn-ink btn-sm" href="#operations">Open console</a>
     </nav>
   </header>
 
   <main id="top">
     <section class="hero">
-      <div class="container hero__text">
-        <span class="badge badge--dot">Polygraph · The lie detector for AI agents</span>
-        <h1>Your agent checks <span class="hl">before</span> it pays.</h1>
-        <p class="lead">Polygraph asks CreateOS, not the seller. Every claim in a seller's offer is checked against the platform's own records before your agent pays. If one is false, the agent refuses and no payment is created.</p>
-        <p class="audience">For AI agents that need heavy software they can't install, like archival PDF conversion with LibreOffice, from sellers they've never met.</p>
-        <div class="cta-row">
-          <a class="btn btn-candy btn-lg" href="#console">Watch it live
-            <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-down"/></svg>
-          </a>
-          <a class="btn btn-outline btn-lg" href="#how">How it works</a>
+      <div class="hero__plane">
+        <div class="container hero__copy">
+          <p class="brand-mark reveal" style="--i:0">Polygraph</p>
+          <h1 class="reveal" style="--i:1">Verify before your agent pays.</h1>
+          <p class="lead reveal" style="--i:2">Every signed seller claim is checked against CreateOS records. A mismatch stops Stripe before a PaymentIntent exists.</p>
+          <div class="cta-row reveal" style="--i:3">
+            <a class="btn btn-candy btn-lg" href="#operations">Open operations console</a>
+            <a class="btn btn-outline btn-lg" href="/llms.txt">Agent protocol</a>
+          </div>
         </div>
-        <p class="trust"><span>$0.50 per job, paid by the agent</span><span>Stripe test mode</span><span>No payment if a check fails</span></p>
       </div>
 
-      <div class="container container--wide hero__visual bleed" id="console">
-        <div class="stage console-stage">
+      <div class="hero__product" id="operations">
+        <div class="console-stage">
           <div class="window window--dark console" id="console-window" data-mode="live">
             <div class="window__bar">
               <div class="lights" aria-hidden="true"><i></i><i></i><i></i></div>
-              <span class="window__title">grok-bot-hackathon · Live console</span>
+              <span class="window__title">Polygraph · Operations</span>
               <div class="console__bar-end">
                 <span class="conn" data-el="conn" data-state="connecting">Connecting</span>
               </div>
             </div>
 
             <div class="console__toolbar">
-              <ol class="phases" aria-label="Progress">
-                <li class="phase" data-phase="0"><span class="phase__mark" aria-hidden="true">1</span>Create</li>
+              <ol class="phases" aria-label="Workflow">
+                <li class="phase" data-phase="0"><span class="phase__mark" aria-hidden="true">1</span>Publish</li>
                 <li class="phases__sep" aria-hidden="true"></li>
-                <li class="phase" data-phase="1"><span class="phase__mark" aria-hidden="true">2</span>Distrust</li>
+                <li class="phase" data-phase="1"><span class="phase__mark" aria-hidden="true">2</span>Verify</li>
                 <li class="phases__sep" aria-hidden="true"></li>
                 <li class="phase" data-phase="2"><span class="phase__mark" aria-hidden="true">3</span>Pay</li>
                 <li class="phases__sep" aria-hidden="true"></li>
-                <li class="phase" data-phase="3"><span class="phase__mark" aria-hidden="true">4</span>Run</li>
+                <li class="phase" data-phase="3"><span class="phase__mark" aria-hidden="true">4</span>Execute</li>
               </ol>
               <div class="console__tools">
-                <div class="tamper" data-el="tamper" role="group" aria-label="Tamper it yourself">
-                  <span class="tamper__label">Tamper it yourself</span>
-                  <button class="tool-btn tool-btn--tamper" type="button" data-kind="egress" title="Fork the seller's sandbox, open its network, keep the signed claim that it is locked">Open the network</button>
-                  <button class="tool-btn tool-btn--tamper" type="button" data-kind="artifact" title="Fork the seller's sandbox and change one byte of the tool after signing">Change one byte</button>
-                  <span class="tamper__status" data-el="tamper-status" aria-live="polite"></span>
-                </div>
-                <span class="preview-tag" data-el="preview-tag" hidden>Replay of a recorded run</span>
+                <span class="preview-tag" data-el="preview-tag" hidden>Recorded session</span>
                 <button class="tool-btn" type="button" data-el="replay" hidden>
                   <svg fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-replay"/></svg>
                   <span>Replay</span>
                 </button>
                 <a class="tool-btn" data-el="fullscreen" href="?console=1">
                   <svg fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-expand"/></svg>
-                  <span>Full screen</span>
+                  <span>Expand</span>
                 </a>
               </div>
             </div>
@@ -108,13 +102,13 @@
               <section class="col col--seller" aria-labelledby="col-seller" data-el="seller-col">
                 <header class="col__head">
                   <span class="col__icon"><svg fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-box"/></svg></span>
-                  <div><h2 class="col__title" id="col-seller">Seller agent</h2><p class="col__sub">Builds, tests and attacks the tool</p></div>
+                  <div><h2 class="col__title" id="col-seller">Seller</h2><p class="col__sub">Build, harden, and publish the offer</p></div>
                   <span class="pill" data-el="seller-pill">Waiting</span>
                 </header>
                 <div class="col__fixed">
                   <div class="tests" data-el="tests">
                     <div class="tests__row">
-                      <span class="mini-label">Tests</span>
+                      <span class="mini-label">Acceptance</span>
                       <span class="tests__runs" data-el="test-runs">no runs yet</span>
                     </div>
                     <div class="tests__nums">
@@ -124,7 +118,7 @@
                     <div class="tests__bar" aria-hidden="true"><i data-el="test-bar-pass"></i><i data-el="test-bar-fail"></i></div>
                   </div>
                   <div class="attacks">
-                    <div class="tests__row"><span class="mini-label">Attacks</span><span class="tests__runs" data-el="attack-sum"></span></div>
+                    <div class="tests__row"><span class="mini-label">Hardening</span><span class="tests__runs" data-el="attack-sum"></span></div>
                     <ul class="attack-grid" data-el="attacks"></ul>
                   </div>
                 </div>
@@ -136,11 +130,11 @@
               <section class="col col--trust" aria-labelledby="col-trust">
                 <header class="col__head">
                   <span class="col__icon"><svg fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-shield"/></svg></span>
-                  <div><h2 class="col__title" id="col-trust">Trust check</h2><p class="col__sub">Signed claims against CreateOS records</p></div>
+                  <div><h2 class="col__title" id="col-trust">Verification</h2><p class="col__sub">Signed claims vs CreateOS state</p></div>
                   <span class="pill" data-el="trust-pill">Idle</span>
                 </header>
                 <div class="col__fixed col__fixed--legend">
-                  <p class="legend">Each row is a claim the seller signed, checked against CreateOS's own records, not the seller's word. <span class="legend__green">Green means CreateOS agrees.</span></p>
+                  <p class="legend">Each row is a claim the seller signed, compared to CreateOS platform records—not the seller’s word. <span class="legend__green">Green means the platform agrees.</span></p>
                   <ul class="tally" data-el="tally" aria-label="Outcome so far"></ul>
                 </div>
                 <div class="col__scroll" data-el="offers-scroll">
@@ -151,13 +145,13 @@
               <section class="col col--buyer" aria-labelledby="col-buyer">
                 <header class="col__head">
                   <span class="col__icon"><svg fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-card"/></svg></span>
-                  <div><h2 class="col__title" id="col-buyer">Buyer agent</h2><p class="col__sub">Verifies, pays, runs the job</p></div>
+                  <div><h2 class="col__title" id="col-buyer">Buyer</h2><p class="col__sub">Verify, pay, run the job</p></div>
                   <span class="pill" data-el="buyer-pill">Waiting</span>
                 </header>
                 <div class="col__fixed">
                   <div class="pay" data-el="pay" data-state="empty">
                     <div class="tests__row"><span class="mini-label">Payment</span><span class="tests__runs" data-el="pay-note">none yet</span></div>
-                    <div class="pay__body" data-el="pay-body"><p class="pay__empty">Nothing is paid until every check passes.</p></div>
+                    <div class="pay__body" data-el="pay-body"><p class="pay__empty">Nothing is charged until every check passes.</p></div>
                   </div>
                   <div class="vm" data-el="vm" data-state="0">
                     <div class="vm__digit" data-el="vm-digit" role="img" aria-label="Workers running: 0"><span class="vm__num">0</span></div>
@@ -179,84 +173,89 @@
       </div>
     </section>
 
-    <section class="section section--alt after-bleed" id="how">
+    <section class="section section--protocol" id="protocol">
       <div class="container">
         <div class="section-head">
-          <span class="eyebrow"><span class="dot"></span>How it works</span>
-          <h2>The buyer pays only after the platform agrees.</h2>
-          <p class="lead">The seller's offer is a signed list of claims. The buyer checks each one with CreateOS before any money moves.</p>
+          <span class="eyebrow"><span class="dot"></span>Protocol</span>
+          <h2>Payment clears only after the platform agrees.</h2>
+          <p class="lead">A seller publishes a signed offer. The buyer agent verifies each claim with CreateOS before any money moves.</p>
         </div>
-        <ol class="steps">
-          <li class="step reveal" style="--i:0">
-            <span class="icon-tile"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-box"/></svg></span>
-            <span class="step__num">01</span>
-            <h3 class="t-title">Create</h3>
-            <p>A seller agent wraps an open-source tool in a CreateOS sandbox, tests and attacks it, then publishes a signed offer.</p>
+        <ol class="protocol">
+          <li class="protocol__step reveal" style="--i:0">
+            <span class="protocol__num">01</span>
+            <div>
+              <h3>Publish</h3>
+              <p>Package an open-source tool in a CreateOS sandbox, harden egress, seal acceptance tests, pause the parent, and sign an Ed25519 offer manifest.</p>
+            </div>
           </li>
-          <li class="step reveal" style="--i:1">
-            <span class="icon-tile"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-scan"/></svg></span>
-            <span class="step__num">02</span>
-            <h3 class="t-title">Distrust</h3>
-            <p>The buyer reads the sandbox's real egress and status from CreateOS and compares them with what the offer claims.</p>
+          <li class="protocol__step reveal" style="--i:1">
+            <span class="protocol__num">02</span>
+            <div>
+              <h3>Verify</h3>
+              <p>Inspect parent status and egress with a short-lived CreateOS token. Compare digests and claims to the signed manifest before calling buy.</p>
+            </div>
           </li>
-          <li class="step reveal" style="--i:2">
-            <span class="icon-tile"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-card"/></svg></span>
-            <span class="step__num">03</span>
-            <h3 class="t-title">Pay</h3>
-            <p>An offer that matches gets $0.50 through Stripe machine payments. One mismatch and no payment is created.</p>
+          <li class="protocol__step reveal" style="--i:2">
+            <span class="protocol__num">03</span>
+            <div>
+              <h3>Pay</h3>
+              <p>Matching offers settle through Stripe Machine Payments (HTTP 402). Any mismatch creates zero PaymentIntents.</p>
+            </div>
           </li>
-          <li class="step reveal" style="--i:3">
-            <span class="icon-tile"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-term"/></svg></span>
-            <span class="step__num">04</span>
-            <h3 class="t-title">Run</h3>
-            <p>The job runs in a fresh worker forked from the sandbox the buyer checked, and the buyer keeps a receipt.</p>
+          <li class="protocol__step reveal" style="--i:3">
+            <span class="protocol__num">04</span>
+            <div>
+              <h3>Execute</h3>
+              <p>Fork a worker from the verified parent, re-check integrity, run the job, keep a receipt, and refund automatically if post-pay checks fail.</p>
+            </div>
           </li>
         </ol>
-        <div class="proof reveal">
-          <div class="proof__item">
-            <p class="proof__label">Same archival test suite</p>
-            <p class="proof__row"><span class="proof__name">Plain LibreOffice</span><span class="proof__score proof__score--weak">14 of 17</span></p>
-            <p class="proof__row"><span class="proof__name">The seller agent's tool</span><span class="proof__score">17 of 17 <small>PDF/A-2b</small></span></p>
-          </div>
-          <div class="proof__item">
-            <p class="proof__label">Attacked on the live gateway</p>
-            <p class="proof__stat"><span class="t-mono">6</span> of <span class="t-mono">6</span> dishonest offers refused, <span class="t-mono">5</span> before any payment existed.</p>
-            <p class="proof__source">docs/runs/tamper-matrix.json</p>
-          </div>
-          <div class="proof__item">
-            <p class="proof__label">Why a buyer should doubt</p>
-            <p class="proof__stat"><span class="t-mono">161</span> of <span class="t-mono">20,338</span> paid agent endpoints were traps.</p>
-            <p class="proof__source">dev.to/afx, 2026</p>
-          </div>
-        </div>
       </div>
     </section>
 
-    <section class="section" id="who">
+    <section class="section section--use" id="use">
       <div class="container">
         <div class="section-head">
-          <span class="eyebrow"><span class="dot"></span>Who needs this</span>
-          <h2 class="t-h3">Anyone who lets agents spend money on tools.</h2>
-          <p class="lead">An agent that pays a stranger needs proof that the tool it paid for is the one it checked. Polygraph is that check, between the buyer and the payment. The document converter is the first listing, not the product.</p>
+          <span class="eyebrow"><span class="dot"></span>Built for</span>
+          <h2>Teams that let agents spend on tools.</h2>
+          <p class="lead">Polygraph sits between the buyer agent and payment rails so a stranger’s sandbox cannot be paid until the platform confirms it.</p>
         </div>
-        <ol class="steps">
-          <li class="step reveal" style="--i:0">
-            <span class="icon-tile"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-card"/></svg></span>
-            <h3 class="t-title">Agent wallets and platforms</h3>
-            <p>Run the check before releasing a payment, so an agent never pays for a sandbox that isn't what it claims.</p>
+        <ul class="use-list">
+          <li class="reveal" style="--i:0">
+            <h3>Agent wallets</h3>
+            <p>Gate disbursement on platform-verified claims so agents never fund a sandbox that isn’t what it signed.</p>
           </li>
-          <li class="step reveal" style="--i:1">
-            <span class="icon-tile"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-shield"/></svg></span>
-            <h3 class="t-title">Tool marketplaces</h3>
-            <p>Verify every listing against the platform's records, and refund automatically when a seller changes something after the sale.</p>
+          <li class="reveal" style="--i:1">
+            <h3>Tool marketplaces</h3>
+            <p>Verify every listing against CreateOS, then auto-refund when a seller changes the artifact after sale.</p>
           </li>
-          <li class="step reveal" style="--i:2">
-            <span class="icon-tile"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-term"/></svg></span>
-            <h3 class="t-title">Sellers with nothing to hide</h3>
-            <p>A sealed test suite, a locked network and a signed offer give honest sellers a way to prove it to buyers they've never met.</p>
+          <li class="reveal" style="--i:2">
+            <h3>Honest sellers</h3>
+            <p>Sealed suites, locked networks, and signed offers give buyers cryptographic reasons to trust a first listing.</p>
           </li>
-        </ol>
-        <p class="t-small" style="margin-top:20px">How it could earn: a small fee per verified purchase, or a cut when a marketplace runs it on every listing.</p>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section section--alt" id="integrity">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow"><span class="dot"></span>Integrity lab</span>
+          <h2>Prove the verifier catches dishonest offers.</h2>
+          <p class="lead">Operators can simulate integrity failures against a live gateway. These controls stay off the critical purchase path unless explicitly enabled.</p>
+        </div>
+        <div class="lab reveal" data-el="tamper" role="group" aria-label="Integrity simulations">
+          <div class="lab__copy">
+            <h3>Simulate a false claim</h3>
+            <p>Fork the seller’s paused parent, alter egress or a single artifact byte, and publish a still-valid signature so the buyer’s CreateOS checks can refuse it.</p>
+            <p class="lab__note">Requires <code class="t-mono">DEMO_TAMPER=1</code> on the gateway. Disabled by default in production configs.</p>
+          </div>
+          <div class="lab__actions">
+            <button class="btn btn-ink" type="button" data-kind="egress" title="Fork the seller sandbox, open its network, keep the signed locked-egress claim">Simulate open network</button>
+            <button class="btn btn-outline" type="button" data-kind="artifact" title="Fork the seller sandbox and change one byte after signing">Simulate artifact drift</button>
+            <p class="lab__status" data-el="tamper-status" aria-live="polite"></p>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -264,19 +263,19 @@
       <div class="container split">
         <div>
           <span class="eyebrow"><span class="dot"></span>Receipts</span>
-          <h2 class="t-h3">Every job ends with a receipt you can check yourself.</h2>
-          <p class="lead">Each id points at a record the seller can't edit: the PaymentIntent in Stripe, the worker and its parent sandbox in CreateOS, and the sha256 of the document that went in and the PDF that came out.</p>
+          <h2 class="t-h3">Every completed job leaves an auditable trail.</h2>
+          <p class="lead">Each id points at records the seller cannot edit: the Stripe PaymentIntent, the CreateOS worker and parent, and sha256 digests of the input and output.</p>
           <ul class="checklist">
-            <li><span>The worker's <code class="t-mono">forked_from</code> matches the parent named in the signed offer.</span></li>
-            <li><span>The tool digest is recomputed inside the worker, not taken from the seller.</span></li>
-            <li><span>The worker is destroyed when the job is done.</span></li>
+            <li><span>Worker <code class="t-mono">forked_from</code> matches the parent named in the signed offer.</span></li>
+            <li><span>Tool digest is recomputed inside the worker, not taken from the seller.</span></li>
+            <li><span>The worker is destroyed when the job completes or refunds.</span></li>
           </ul>
         </div>
-        <div class="stage stage--soft receipt-stage reveal">
+        <div class="receipt-frame reveal">
           <div class="receipt receipt--light" data-el="receipt-section" aria-live="off">
             <div class="receipt__empty">
               <p class="t-title">No receipt yet</p>
-              <p class="t-small">When the buyer agent finishes a job, its receipt shows up here.</p>
+              <p class="t-small">When a buyer finishes a verified job, the receipt appears here.</p>
             </div>
           </div>
         </div>
@@ -286,9 +285,13 @@
 
   <footer class="footer">
     <div class="container">
-      <a class="nav__brand" href="#top"><svg class="app-icon" aria-hidden="true"><use href="#i-mark"/></svg>grok-bot-hackathon</a>
-      <span>Verifiable AI agent tool marketplace. Built on CreateOS Sandbox and Stripe (test mode).</span>
-      <a class="footer__link" href="?console=1">Full-screen console</a>
+      <a class="nav__brand" href="#top"><svg class="app-icon" aria-hidden="true"><use href="#i-mark"/></svg>Polygraph</a>
+      <span>Verifiable agent tool payments · CreateOS Sandbox · Stripe Machine Payments</span>
+      <div class="footer__links">
+        <a class="footer__link" href="/openapi.json">OpenAPI</a>
+        <a class="footer__link" href="/llms.txt">llms.txt</a>
+        <a class="footer__link" href="?console=1">Expand console</a>
+      </div>
     </div>
   </footer>
 

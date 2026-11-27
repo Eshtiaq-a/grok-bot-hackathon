@@ -141,7 +141,7 @@ if ("IntersectionObserver" in window) {
   document.querySelectorAll(".reveal").forEach((node) => node.classList.add("in"));
 }
 
-/* ---------- tamper it yourself ---------- */
+/* ---------- integrity lab ---------- */
 
 function wireTamper() {
   const group = document.querySelector('[data-el="tamper"]');
@@ -154,14 +154,15 @@ function wireTamper() {
     button.addEventListener("click", async () => {
       const kind = button.dataset.kind;
       buttons.forEach((b) => (b.disabled = true));
-      say(kind === "egress" ? "Forking the seller's sandbox and opening its network…" : "Forking the seller's sandbox and changing one byte…");
+      say(kind === "egress" ? "Forking seller sandbox and opening network…" : "Forking seller sandbox and altering one artifact byte…");
       try {
         const res = await fetch("/demo/tamper", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ kind }) });
         const body = await res.json().catch(() => ({}));
-        if (res.status === 429) say(`Someone just tampered. Try again in ${res.headers.get("retry-after") || "a minute"} s.`, "bad");
-        else if (!res.ok) say(body.error || `The tamper did not run (HTTP ${res.status}).`, "bad");
-        else if (body.refused) say("Refused before any payment. CreateOS contradicted the seller's signed claim.", "good");
-        else say("Pre-payment checks pass: this tamper only shows inside a worker. The buyer catches it after paying and gets refunded.", "");
+        if (res.status === 404) say("Integrity lab is disabled on this gateway (set DEMO_TAMPER=1).", "bad");
+        else if (res.status === 429) say(`Rate limited. Retry in ${res.headers.get("retry-after") || "a minute"} s.`, "bad");
+        else if (!res.ok) say(body.error || `Simulation failed (HTTP ${res.status}).`, "bad");
+        else if (body.refused) say("Buyer refused before payment — CreateOS contradicted the signed claim.", "good");
+        else say("Pre-pay checks passed; post-pay verification should catch this and refund.", "");
       } catch {
         say("Could not reach the gateway.", "bad");
       } finally {

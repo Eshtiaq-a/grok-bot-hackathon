@@ -109,7 +109,7 @@ const freeRoutes: Record<string, Record<string, Operation>> = {
 
 function buildDocument(baseUrl: string): Record<string, unknown> {
   const doc = generate(mppx, {
-    info: { title: "grok-bot-hackathon gateway", version: "0.1.0" },
+    info: { title: "Polygraph gateway", version: "0.1.0" },
     serviceInfo: {
       categories: ["compute", "documents"],
       docs: { homepage: baseUrl, llms: `${baseUrl}/llms.txt` },

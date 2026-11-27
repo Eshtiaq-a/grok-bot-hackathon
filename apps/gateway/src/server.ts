@@ -36,7 +36,7 @@ app.onError((err, c) => {
 });
 
 const server = serve({ fetch: app.fetch, port: config.port }, (info) => {
-  console.log(`grok-bot-hackathon gateway listening on http://localhost:${info.port}, keeping ${config.poolSize} warm worker(s) per offer`);
+  console.log(`Polygraph gateway listening on http://localhost:${info.port}, keeping ${config.poolSize} warm worker(s) per offer`);
 });
 handleShutdownSignals(() => server.close());
 startBackgroundWork();
