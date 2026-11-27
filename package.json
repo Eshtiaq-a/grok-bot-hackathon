@@ -1,0 +1,38 @@
+{
+  "name": "grok-bot-hackathon",
+  "private": true,
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Eshtiaq-a/grok-bot-hackathon.git"
+  },
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "gateway": "node --env-file-if-exists=.env --import tsx apps/gateway/src/server.ts",
+    "seller": "node --env-file-if-exists=.env --import tsx apps/seller/src/cli.ts",
+    "buyer": "node --env-file-if-exists=.env --import tsx apps/buyer/src/cli.ts",
+    "tamper-matrix": "node --env-file-if-exists=.env --import tsx apps/buyer/src/tamper-matrix.ts",
+    "preview": "node --import tsx scripts/preview.ts",
+    "test": "node --import tsx --test tests/*.test.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.135.0",
+    "@hono/node-server": "^2.1.5",
+    "@nodeops-createos/sandbox": "^0.8.2",
+    "hono": "^4.13.13",
+    "mppx": "^0.13.5",
+    "stripe": "^23.0.0"
+  }
+}
