@@ -432,9 +432,9 @@ test("end-to-end workflow: pre-payment refusal, post-payment refund, and genuine
     ]);
     assert.equal(healthRes.status, 200);
     assert.equal(homeRes.status, 200);
-    assert.match(await homeRes.text(), /grok-bot-hackathon/);
+    assert.match(await homeRes.text(), /Polygraph/);
     assert.equal(llmsRes.status, 200);
-    assert.match(await llmsRes.text(), /grok-bot-hackathon gateway/);
+    assert.match(await llmsRes.text(), /Polygraph gateway/);
     assert.equal(openapiRes.status, 200);
 
     const { signManifest } = await import("../packages/core/src/index.js");

@@ -409,7 +409,7 @@ export function createConsole(root, { onReceipt } = {}) {
       h("span", { class: "offers-empty__icon" }, icon("shield", 1.8)),
       h("p", { class: "offers-empty__title" }, "No offers yet"),
       h("p", {}, "Each offer the seller publishes gets checked here, claim by claim."),
-      root.dataset.mode === "preview" ? null : h("a", { href: "?demo=1" }, "Watch a replay of a recorded run"));
+      root.dataset.mode === "preview" ? null : h("a", { href: "?demo=1" }, "Replay a recorded session"));
     dom.offers.append(emptyOffersHint);
   }
 

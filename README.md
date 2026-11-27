@@ -1,99 +1,207 @@
-# grok-bot-hackathon
+# Polygraph
 
-Verifiable pay-per-call AI agent tool marketplace and trust-checking gateway, built on CreateOS Sandboxes and Stripe Machine Payments (MPP) in test mode.
+Agents that buy tools from strangers need proof the sandbox matches the offer. Polygraph sits between the buyer agent and Stripe: it checks CreateOS records against the seller’s signed claims, and only then lets payment clear.
 
-> Adapted from the open-source [Polygraph](https://github.com/kinnuworks/polygraph) architecture and replicated for `grok-bot-hackathon`.
+A failed check means **no PaymentIntent**. A post-pay integrity failure means a full refund and a destroyed worker.
 
-## Overview
+<p align="center">
+  <img src="docs/images/hero.jpg" alt="Polygraph product site — hero and operations console" width="920">
+</p>
 
-AI agents that pay per HTTP call for external tools need cryptographic and platform-level proof that the service they are paying for matches what the seller claims. This project sits between the **seller agent**, the **gateway**, and the **buyer agent**:
+Built on [CreateOS Sandboxes](https://createos.sh) and [Stripe Machine Payments](https://docs.stripe.com) (test mode). Architecture adapted from [kinnuworks/polygraph](https://github.com/kinnuworks/polygraph).
 
-1. **Create (`apps/seller`)**: A seller agent packages an open-source document converter (LibreOffice / `unoserver`), tests and hardens it inside a CreateOS sandbox, locks outbound egress (`127.0.0.1:9` deny-by-default allowlist), seals an independent Python acceptance suite (`apps/seller/acceptance`), pauses the parent sandbox, and signs an `OfferManifest` with an Ed25519 JWS.
-2. **Distrust (`apps/buyer`)**: Before any payment is created, the buyer agent verifies the JWS signature and asks CreateOS directly (using a short-lived parent inspection token from `GET /offers/:id/inspect`) whether the parent sandbox is paused and whether its real egress matches the signed claim. Any mismatch causes immediate refusal with **zero Stripe PaymentIntents created**.
-3. **Pay (`apps/gateway` + Stripe MPP)**: `POST /offers/:id/buy` issues an HTTP `402` Machine Payments challenge via `mppx`. The buyer pays **$0.50** in **Stripe test mode** using a single-use Shared Payment Token (`spt_...` via `pm_card_visa` or Link agent wallet), and the gateway forks a fresh worker sandbox from the verified parent, reseeds `/dev/urandom`, records proof IDs onto the PaymentIntent metadata, and returns a scoped `workerToken`.
-4. **Verify, Run & Refund**: Before uploading the user's document, the buyer checks the worker directly on CreateOS (`forked_from`, egress, running status), downloads and hashes every tool file locally, verifies the in-worker digest, checks `dpkg --verify` and Python startup hooks, and runs the conversion. If any post-payment check fails, the buyer withholds the document and calls `POST /purchases/:id/refund`; the gateway independently re-audits the worker and issues a full Stripe test-mode refund.
+---
 
-## Repository Layout
+## What you get
+
+| Piece | What it actually does |
+| --- | --- |
+| **Seller agent** | Packages a tool (default: LibreOffice / `unoserver`) in a sandbox, hardens egress, seals a Python acceptance suite, pauses the parent, signs an Ed25519 offer |
+| **Gateway** | Offer registry, short-lived inspect tokens, HTTP 402 MPP charges, warm worker pool, SSE event feed, product UI |
+| **Buyer agent** | Verifies JWS + CreateOS state before paying; re-checks the worker after pay; runs the job or refunds |
+| **Operations console** | Live (or recorded) view of publish → verify → pay → execute |
+
+First listing in the tree is a document→PDF converter at **$0.50 / job**. The converter is an example; the product is the verify-before-pay path.
+
+<p align="center">
+  <img src="docs/images/operations-console.jpg" alt="Live operations console with seller, verification, and buyer columns" width="920">
+</p>
+
+---
+
+## Protocol (short)
+
+1. **Publish** — seller builds, tests, locks egress, pauses parent, signs `OfferManifest`
+2. **Verify** — buyer checks signature, then asks CreateOS (not the seller) for status / egress / digests
+3. **Pay** — `POST /offers/:id/buy` → 402 challenge → Stripe test charge → worker fork
+4. **Execute** — buyer re-audits the worker, uploads input, runs the job, keeps a receipt; or refunds
+
+<p align="center">
+  <img src="docs/images/protocol.jpg" alt="Protocol section: Publish, Verify, Pay, Execute" width="920">
+</p>
+
+If any pre-pay claim disagrees with CreateOS, the buyer refuses and Stripe never sees a charge.
+
+---
+
+## Repo layout
 
 ```text
-packages/core     Shared TypeScript contracts, Ed25519 JWS signing/verification, CreateOS client, event feed
-apps/seller       Seller agent CLI, LLM build/fix loop, hardening, hidden acceptance suite, demo foils
-apps/gateway      Hono HTTP gateway, offer registry, MPP 402 Stripe payments, warm worker pool, SSE feed
-apps/buyer        Buyer agent CLI, pre/post-payment verifier, tamper matrix, Stripe test/Link payer, receipts
-apps/web/public   Live console dashboard and recorded-run replay UI
-data/events       Recorded event feed replayed on gateway startup
-scripts/          Deployment helper (deploy.sh) and offline UI preview server (preview.ts)
-tests/            Local end-to-end verification tests (mocking external CreateOS & Stripe endpoints)
+packages/core     types, Ed25519 JWS, CreateOS helpers, events
+apps/seller       CLI: build / harden / acceptance / publish
+apps/gateway      Hono server + static UI (port 4242)
+apps/buyer        CLI: distrust → pay → verify → run
+apps/web/public   product site + operations console
+tests/            e2e with mocked CreateOS + Stripe
+docs/images/      README screenshots
 ```
 
-## Setup & Local Installation
+---
 
-**Prerequisites:** Node.js `>= 20` (tested on Node 24), npm, and (for live sandbox + payment runs) a CreateOS Sandbox API key, a Stripe test-mode sandbox + MPP profile, and an Anthropic API key.
+## Quick start (UI only)
+
+No API keys needed for the static preview + recorded session:
 
 ```bash
-# 1. Install workspace dependencies
 npm install
-
-# 2. Typecheck and run the local end-to-end verification suite
-npm run typecheck
-npm test
-
-# 3. Preview the dashboard UI offline with the recorded run (no API keys required)
 npm run preview
-# Open http://localhost:4242/?demo=1
+# open http://localhost:4242/
+# recorded session: http://localhost:4242/?demo=1
 ```
 
-## Environment Variables
+<p align="center">
+  <img src="docs/images/recorded-session.jpg" alt="Operations console replaying a recorded session" width="920">
+</p>
 
-Copy `.env.example` to `.env` and populate your own sandbox/test credentials (never commit `.env`):
+```bash
+npm run typecheck
+npm test
+```
+
+---
+
+## Live stack
+
+Needs Node **≥ 20**, a CreateOS sandbox key, Stripe **test** keys (`sk_test_…`), an MPP profile, and Anthropic (seller build loop).
 
 ```bash
 cp .env.example .env
+# fill CREATEOS_SANDBOX_API_KEY, STRIPE_SECRET_KEY, STRIPE_PROFILE_ID,
+# MPP_SECRET_KEY, ANTHROPIC_API_KEY, SELLER_SIGNING_KEY
 ```
 
-Key required variables for running the live gateway, seller, and buyer:
-
-| Variable | Required by | Description |
-|---|---|---|
-| `CREATEOS_SANDBOX_API_KEY` | Gateway, Seller | CreateOS Sandbox API key |
-| `CREATEOS_SANDBOX_BASE_URL` | All (optional) | CreateOS API URL (default: `https://api-eu.sb.createos.sh`) |
-| `STRIPE_SECRET_KEY` | Gateway, Buyer (`--pay test`) | **Must be a Stripe test key (`sk_test_...` or `rk_test_...`)** — live keys are rejected |
-| `STRIPE_PROFILE_ID` | Gateway | Stripe Machine Payments (MPP) network/profile ID |
-| `MPP_SECRET_KEY` | Gateway | Secret used by `mppx` to sign 402 payment challenges |
-| `ANTHROPIC_API_KEY` | Seller | Anthropic API key for drafting/fixing the converter tool |
-| `SELLER_SIGNING_KEY` | Seller, Gateway (`/demo/tamper`) | Base64-encoded PKCS8 Ed25519 private key PEM |
-| `POLYGRAPH_GATEWAY_URL` | Buyer, Seller, Gateway | Gateway base URL (default: `http://localhost:4242`) |
-
-See [.env.example](file:///Users/eshtiaqahmad/grok%20bot%20hackathon/.env.example) for all optional tuning flags (`DEMO_FOILS`, `DEMO_TAMPER`, `POOL_SIZE`, `ORPHAN_SWEEP`, `BUYER_CREATEOS_SANDBOX_API_KEY`, etc.).
-
-To generate a fresh `SELLER_SIGNING_KEY` and `MPP_SECRET_KEY`:
+Keys:
 
 ```bash
-openssl genpkey -algorithm ed25519 | base64 | tr -d '\n'   # -> SELLER_SIGNING_KEY
-openssl rand -hex 32                                       # -> MPP_SECRET_KEY
+openssl genpkey -algorithm ed25519 | base64 | tr -d '\n'   # SELLER_SIGNING_KEY
+openssl rand -hex 32                                       # MPP_SECRET_KEY
 ```
 
-## Running the Live Sandbox & Stripe Test-Mode Workflow
+Live keys are rejected on purpose — gateway and buyer both require `_test_` in `STRIPE_SECRET_KEY`.
 
-Once `.env` is configured with your CreateOS and Stripe test-mode credentials:
+### Terminals
 
 ```bash
-# Terminal 1: Start the gateway and live console at http://localhost:4242
+# 1 — gateway + UI
 npm run gateway
 
-# Terminal 2: Run the seller agent (creates sandbox, builds/tests tool, hardens egress, publishes offer + foils)
+# 2 — publish an offer
 npm run seller
 
-# Terminal 3: Run the buyer agent against the local gateway in Stripe test mode
+# 3 — buy and convert
 npm run buyer -- --file apps/buyer/fixtures/contract.docx --trust-seller
+```
 
-# Optional: Run the 6-case tamper matrix (5 refused pre-payment, 1 caught & refunded post-payment)
+Buyer flags worth knowing:
+
+| Flag | Meaning |
+| --- | --- |
+| `--pay test` | Stripe test Shared Payment Token (default) |
+| `--pay link` | Link wallet via `@stripe/link-cli` (still test mode) |
+| `--mode worker` | run in seller’s forked worker (default) |
+| `--mode own` | copy verified tool into the buyer’s CreateOS account |
+| `--trust-seller` | pin seller pubkey for this gateway on first use |
+
+Integrity matrix (optional):
+
+```bash
 npm run tamper-matrix -- --gateway http://localhost:4242
 ```
 
-### Stripe Sandbox Testing Notes
+---
 
-- **Test-mode enforcement:** Both `apps/gateway/src/payments.ts` and `apps/buyer/src/pay.ts` enforce that `STRIPE_SECRET_KEY` contains `_test_` and run `mppx` with `livemode: false`. Live-mode keys are refused.
-- **Test card payments (`--pay test`, default):** The buyer mints a single-use test Shared Payment Token via `POST https://api.stripe.com/v1/test_helpers/shared_payment/granted_tokens` using `pm_card_visa`, verifies the `402` challenge matches the signed `priceUsd` (`$0.50`), and retries `POST /offers/:id/buy`.
-- **Link wallet payments (`--pay link`):** Uses `npx @stripe/link-cli mpp pay ... --test` for human-in-the-loop Link app approval without charging a real card.
-- **Automatic refunds:** If a worker fails to boot within `BUY_FORK_DEADLINE_SECONDS` (default 45s), receives no job input within `UNUSED_REFUND_SECONDS` (default 300s), or fails post-payment verification at `POST /purchases/:id/refund`, the gateway calls `stripeClient.refunds.create(...)` in test mode and destroys the worker.
+## Integrity lab
+
+Operator-only. Off by default (`DEMO_TAMPER=0`, `DEMO_FOILS=0`). When enabled, the UI can fork the seller parent, open egress or flip one artifact byte, and republish a still-valid signature so you can watch the buyer refuse.
+
+<p align="center">
+  <img src="docs/images/integrity-lab.jpg" alt="Integrity lab controls for simulating false claims" width="920">
+</p>
+
+---
+
+## Receipts
+
+Every completed job leaves ids you can check yourself: Stripe PaymentIntent, CreateOS parent + worker, input/output sha256. Workers are destroyed on `done` or refund.
+
+<p align="center">
+  <img src="docs/images/receipts.jpg" alt="Receipts section of the product site" width="920">
+</p>
+
+---
+
+## HTTP surface
+
+| Method | Path | Notes |
+| --- | --- | --- |
+| `GET` | `/offers`, `/offers/:id` | signed offers |
+| `GET` | `/offers/:id/inspect` | short-lived CreateOS parent token (~60s) |
+| `POST` | `/offers/:id/buy` | MPP 402 → grant (`workerToken`, `purchaseSecret`, …) |
+| `POST` | `/purchases/:id/refund` | gateway re-audits, then Stripe refund |
+| `POST` | `/purchases/:id/done` | destroy worker |
+| `GET` | `/events` | SSE feed (replays ~200, then live) |
+| `GET` | `/openapi.json`, `/llms.txt` | for agents |
+| `GET` | `/health` | uptime + warm pool size |
+
+Agents: start at [`/llms.txt`](http://localhost:4242/llms.txt) when the gateway is up.
+
+---
+
+## Env reference
+
+| Variable | Who | Required |
+| --- | --- | --- |
+| `CREATEOS_SANDBOX_API_KEY` | gateway, seller | yes (live) |
+| `STRIPE_SECRET_KEY` | gateway, buyer | yes (`sk_test_` / `rk_test_`) |
+| `STRIPE_PROFILE_ID` | gateway | yes |
+| `MPP_SECRET_KEY` | gateway | yes |
+| `ANTHROPIC_API_KEY` | seller | yes (unless `--tamper` / `--skip-build`) |
+| `SELLER_SIGNING_KEY` | seller, integrity lab | yes |
+| `POLYGRAPH_GATEWAY_URL` | buyer, seller | default `http://localhost:4242` |
+| `DEMO_FOILS` / `DEMO_TAMPER` | gateway | default `0` |
+| `POOL_SIZE` | gateway | default `1` |
+| `BUYER_CREATEOS_SANDBOX_API_KEY` | buyer `--mode own` | optional |
+
+Full list: [`.env.example`](.env.example).
+
+---
+
+## What this proves / doesn’t
+
+**Proves (against CreateOS, not seller word):** parent paused, egress matches claim, worker `forked_from` lineage, artifact digest recomputed in-worker.
+
+**Does not prove:** the tool is bug-free, or that the seller’s account can’t read files inside a worker they own. Don’t send secrets the seller must never see.
+
+---
+
+## Scripts
+
+| Script | |
+| --- | --- |
+| `npm run gateway` | HTTP gateway + UI |
+| `npm run seller` | publish offer |
+| `npm run buyer` | verify / pay / run |
+| `npm run tamper-matrix` | six integrity cases |
+| `npm run preview` | UI + recorded session, no keys |
+| `npm test` | local e2e (mocked externals) |
+| `npm run typecheck` | `tsc --noEmit` |

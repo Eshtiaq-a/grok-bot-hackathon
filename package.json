@@ -1,6 +1,7 @@
 {
   "name": "grok-bot-hackathon",
   "private": true,
+  "description": "Polygraph — verifiable pay-per-call AI agent tool marketplace and trust gateway",
   "type": "module",
   "repository": {
     "type": "git",
